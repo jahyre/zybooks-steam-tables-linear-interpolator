@@ -28,6 +28,11 @@ def interpolate(x, x1, x2, y1, y2):
 
 def interpolist(x, x_1, x_2, y_list_1, y_list_2):
     y_list = []
-    for i in range(len(y_list_1)):
-        y_list.append(interpolate(x, x_1, x_2, y_list_1[i], y_list_2[i]))
-    return y_list
+    if len(y_list_1) <= len(y_list_2):
+        for i in range(len(y_list_1)):
+            y_list.append(interpolate(x, x_1, x_2, y_list_1[i], y_list_2[i]))
+        return y_list
+    elif len(y_list_2) < len(y_list_1):
+        for i in range(len(y_list_2)):
+            y_list.append(interpolate(x, x_1, x_2, y_list_1[i], y_list_2[i]))
+        return y_list
