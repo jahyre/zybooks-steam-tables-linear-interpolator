@@ -58,12 +58,12 @@ if float(temp) in list(tsat_list):
     for i in range(len(tsat_list)):
         if float(tsat_list[i]) == float(temp):
             psat_expect = float(psat_list[i])
-    print(str(psat_expect))
+    print("Psat= ",str(psat_expect))
 else:
     tsat_below, tsat_above = lb.above_below(float(temp), tsat_list)
     psat_below, psat_above = lb.corresponding_ab(float(temp), tsat_list, psat_list)
     psat_expect = psat_below + ((psat_above - psat_below) / (tsat_above - tsat_below)) * (temp - tsat_below)
-    print(str(psat_expect))
+    print("Psat= ",str(psat_expect))
 
 if psat_expect - .5 < pressure < .5 + psat_expect:
     for i in range(len(tsat_list)):
@@ -223,7 +223,7 @@ elif pressure > psat_expect + .5:  # subcooled liquid
         u1 = lb.interpolate(temp, temp_b, temp_a, u_b, u_a)
         h1 = lb.interpolate(temp, temp_b, temp_a, h_b, h_a)
         s1 = lb.interpolate(temp, temp_b, temp_a, s_b, s_a)
-        print("\Subcooled Liquid\nv = " + str(v1) + " m^3/kg\nu = " + str(u1) + " kJ/kg\nh = " + str(
+        print("Subcooled Liquid\nv = " + str(v1) + " m^3/kg\nu = " + str(u1) + " kJ/kg\nh = " + str(
             h1) + " kJ/kg\ns = " + str(s1) + " K*kJ/kg")
 
 # outlet
