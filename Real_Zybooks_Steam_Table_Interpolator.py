@@ -58,10 +58,12 @@ if float(temp) in list(tsat_list):
     for i in range(len(tsat_list)):
         if float(tsat_list[i]) == float(temp):
             psat_expect = float(psat_list[i])
+    print(str(psat_expect))
 else:
     tsat_below, tsat_above = lb.above_below(float(temp), tsat_list)
     psat_below, psat_above = lb.corresponding_ab(float(temp), tsat_list, psat_list)
     psat_expect = psat_below + ((psat_above - psat_below) / (tsat_above - tsat_below)) * (temp - tsat_below)
+    print(str(psat_expect))
 
 if psat_expect - .5 < pressure < .5 + psat_expect:
     for i in range(len(tsat_list)):
@@ -428,68 +430,28 @@ elif answer_saturated == str("n"):
             t2_b, t2_a = lb.above_below(float(t2), tsat_list)
             p2_b, p2_a = lb.corresponding_ab(float(t2), tsat_list, psat_list)
             p2_expect = lb.interpolate(t2, t2_a, t2_b, p2_a, p2_b)
-            if P2 > 0.5 + p2_expect:
-                # subcooled liquids
-                if P2 in subcooled_pressures:
-                    for q in range(len(subcooled_pressures)):
-                        if P2 == subcooled_pressures[q]:
-                            subcooled2 = pd.read_excel(file_path3, q)
-                            tcooled2_list = subcooled2.loc[:, 'T']
-                            vcooled2_list = subcooled2.loc[:, 'v']
-                            ucooled2_list = subcooled2.loc[:, 'u']
-                            hcooled2_list = subcooled2.loc[:, 'h']
-                            scooled2_list = subcooled2.loc[:, 's']
-                    if t2 in list(tcooled2_list):
-                        index = lb.find_index(t2, hcooled2_list)
-                        v2 = list(vcooled2_list)[index]
-                        u2 = list(ucooled2_list)[index]
-                        h2 = list(hcooled_list)[index]
-                        s2 = list(scooled2_list)[index]
-                        print("Subcooled Liquid\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(u2) + " kJ/kg\nT2 = " + str(
-                            t2) + " C\ns2 = " + str(s2) + " K*kJ/kg")
-                        Q = m2 * h2 - m1 * h1
-                        print("Q = " + str(Q) + "kJ/s")
-                    else:
-                        t_b2, t_a2 = lb.above_below(t2, list(tcooled2_list))
-                        v_b2, v_a2 = lb.corresponding_ab(t2, tcooled2_list, vcooled2_list)
-                        u_b2, u_a2 = lb.corresponding_ab(t2, tcooled2_list, ucooled2_list)
-                        h_b2, h_a2 = lb.corresponding_ab(t2, tcooled2_list, hcooled2_list)
-                        s_b2, s_a2 = lb.corresponding_ab(t2, tcooled2_list, scooled2_list)
-                        v2 = lb.interpolate(t2, t_b2, t_a2, v_b2, v_a2)
-                        u2 = lb.interpolate(t2, t_b2, t_a2, u_b2, u_a2)
-                        h2 = lb.interpolate(t2, t_b2, t_a2, h_b2, h_a2)
-                        s2 = lb.interpolate(t2, t_b2, t_a2, s_b2, s_a2)
-                        print("Subcooled Liquid\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(u2) + " kJ/kg\nh2 = " + str(
-                            h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
-                        Q = m2 * h2 - m1 * h1
-                        print("Q = " + str(Q) + "kJ/s")
-                elif P2 not in subcooled_pressures:
-                    pressure_below, pressure_above = lb.above_below(pressure, subcooled_pressures)
-                    for l in range(len(subcooled_pressures)):
-                        if pressure_below == subcooled_pressures[l]:
-                            subcooledb2 = pd.read_excel(file_path3, l)
-                            tcooledb2_list = list(subcooledb2.loc[:, 'T'])
-                            vcooledb2_list = list(subcooledb2.loc[:, 'v'])
-                            ucooledb2_list = list(subcooledb2.loc[:, 'u'])
-                            hcooledb2_list = list(subcooledb2.loc[:, 'h'])
-                            scooledb2_list = list(subcooledb2.loc[:, 's'])
-                        elif pressure_above == subcooled_pressures[l]:
-                            subcooleda2 = pd.read_excel(file_path3, l)
-                            tcooleda2_list = list(subcooleda2.loc[:, 'T'])
-                            vcooleda2_list = list(subcooleda2.loc[:, 'v'])
-                            ucooleda2_list = list(subcooleda2.loc[:, 'u'])
-                            hcooleda2_list = list(subcooleda2.loc[:, 'h'])
-                            scooleda2_list = list(subcooleda2.loc[:, 's'])
-                    tcooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(tcooledb2_list),
-                                                   list(tcooleda2_list))
-                    vcooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(vcooledb2_list),
-                                                   list(vcooleda2_list))
-                    ucooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(ucooledb2_list),
-                                                   list(ucooleda2_list))
-                    hcooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(hcooledb2_list),
-                                                   list(hcooleda2_list))
-                    scooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(scooledb2_list),
-                                                   list(scooleda2_list))
+        if P2 > p2_expect:
+            # subcooled liquids
+            if P2 in subcooled_pressures:
+                for q in range(len(subcooled_pressures)):
+                    if P2 == subcooled_pressures[q]:
+                        subcooled2 = pd.read_excel(file_path3, q)
+                        tcooled2_list = subcooled2.loc[:, 'T']
+                        vcooled2_list = subcooled2.loc[:, 'v']
+                        ucooled2_list = subcooled2.loc[:, 'u']
+                        hcooled2_list = subcooled2.loc[:, 'h']
+                        scooled2_list = subcooled2.loc[:, 's']
+                if t2 in list(tcooled2_list):
+                    index = lb.find_index(t2, hcooled2_list)
+                    v2 = list(vcooled2_list)[index]
+                    u2 = list(ucooled2_list)[index]
+                    h2 = list(hcooled_list)[index]
+                    s2 = list(scooled2_list)[index]
+                    print("Subcooled Liquid\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(u2) + " kJ/kg\nT2 = " + str(
+                        t2) + " C\ns2 = " + str(s2) + " K*kJ/kg")
+                    Q = m2 * h2 - m1 * h1
+                    print("Q = " + str(Q) + "kJ/s")
+                else:
                     t_b2, t_a2 = lb.above_below(t2, list(tcooled2_list))
                     v_b2, v_a2 = lb.corresponding_ab(t2, tcooled2_list, vcooled2_list)
                     u_b2, u_a2 = lb.corresponding_ab(t2, tcooled2_list, ucooled2_list)
@@ -502,84 +464,125 @@ elif answer_saturated == str("n"):
                     print("Subcooled Liquid\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(u2) + " kJ/kg\nh2 = " + str(
                         h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
                     Q = m2 * h2 - m1 * h1
-                    print("Q = "+str(Q)+"kJ/s")
-            elif P2 < p2_expect - 0.5:
-                # Superheated Vapor
-                if P2 in superheated_pressures:
-                    for q in range(len(superheated_pressures)):
-                        if P2 == subcooled_pressures[q]:
-                            superheated2 = pd.read_excel(file_path3, q)
-                            theated2_list = superheated2.loc[:, 'T']
-                            vheated2_list = superheated2.loc[:, 'v']
-                            uheated2_list = superheated2.loc[:, 'u']
-                            hheated2_list = superheated2.loc[:, 'h']
-                            sheated2_list = superheated2.loc[:, 's']
-                    if t2 in list(theated2_list):
-                        index = lb.find_index(t2, hheated2_list)
-                        v2 = list(vheated2_list)[index]
-                        u2 = list(uheated2_list)[index]
-                        h2 = list(hheated_list)[index]
-                        s2 = list(sheated2_list)[index]
-                        print("Superheated Vapor\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(
-                            u2) + " kJ/kg\nh2 = " + str(
-                            h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
-                        Q = m2 * h2 - m1 * h1
-                        print("Q = " + str(Q) + "kJ/s")
-                    else:
-                        t_b2, t_a2 = lb.above_below(t2, list(theated2_list))
-                        v_b2, v_a2 = lb.corresponding_ab(t2, theated2_list, vheated2_list)
-                        u_b2, u_a2 = lb.corresponding_ab(t2, theated2_list, uheated2_list)
-                        h_b2, h_a2 = lb.corresponding_ab(t2, theated2_list, hheated2_list)
-                        s_b2, s_a2 = lb.corresponding_ab(t2, theated2_list, sheated2_list)
-                        v2 = lb.interpolate(t2, t_b2, t_a2, v_b2, v_a2)
-                        u2 = lb.interpolate(t2, t_b2, t_a2, u_b2, u_a2)
-                        h2 = lb.interpolate(t2, t_b2, t_a2, h_b2, h_a2)
-                        s2 = lb.interpolate(t2, t_b2, t_a2, s_b2, s_a2)
-                        print("Superheated Vapor\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(
-                            u2) + " kJ/kg\nh2 = " + str(
-                            h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
-                        Q = m2 * h2 - m1 * h1
-                        print("Q = " + str(Q) + "kJ/s")
-                elif P2 not in superheated_pressures:
-                    pressure_below, pressure_above = lb.above_below(pressure, superheated_pressures)
-                    for l in range(len(superheated_pressures)):
-                        if pressure_below == superheated_pressures[l]:
-                            superheatedb2 = pd.read_excel(file_path3, l)
-                            theatedb2_list = list(superheatedb2.loc[:, 'T'])
-                            vheatedb2_list = list(superheatedb2.loc[:, 'v'])
-                            uheatedb2_list = list(superheatedb2.loc[:, 'u'])
-                            hheatedb2_list = list(superheatedb2.loc[:, 'h'])
-                            sheatedb2_list = list(superheatedb2.loc[:, 's'])
-                        elif pressure_above == subcooled_pressures[l]:
-                            superheateda2 = pd.read_excel(file_path3, l)
-                            theateda2_list = list(superheateda2.loc[:, 'T'])
-                            vheateda2_list = list(superheateda2.loc[:, 'v'])
-                            uheateda2_list = list(superheateda2.loc[:, 'u'])
-                            hheateda2_list = list(superheateda2.loc[:, 'h'])
-                            sheateda2_list = list(superheateda2.loc[:, 's'])
-                    theated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(theatedb2_list),
-                                                   list(theateda2_list))
-                    vheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(vheatedb2_list),
-                                                   list(vheateda2_list))
-                    uheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(uheatedb2_list),
-                                                   list(uheateda2_list))
-                    hheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(hheatedb2_list),
-                                                   list(hheateda2_list))
-                    sheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(sheatedb2_list),
-                                                   list(sheateda2_list))
+                    print("Q = " + str(Q) + "kJ/s")
+            elif P2 not in subcooled_pressures:
+                pressure_below, pressure_above = lb.above_below(pressure, subcooled_pressures)
+                for l in range(len(subcooled_pressures)):
+                    if pressure_below == subcooled_pressures[l]:
+                        subcooledb2 = pd.read_excel(file_path3, l)
+                        tcooledb2_list = list(subcooledb2.loc[:, 'T'])
+                        vcooledb2_list = list(subcooledb2.loc[:, 'v'])
+                        ucooledb2_list = list(subcooledb2.loc[:, 'u'])
+                        hcooledb2_list = list(subcooledb2.loc[:, 'h'])
+                        scooledb2_list = list(subcooledb2.loc[:, 's'])
+                    elif pressure_above == subcooled_pressures[l]:
+                        subcooleda2 = pd.read_excel(file_path3, l)
+                        tcooleda2_list = list(subcooleda2.loc[:, 'T'])
+                        vcooleda2_list = list(subcooleda2.loc[:, 'v'])
+                        ucooleda2_list = list(subcooleda2.loc[:, 'u'])
+                        hcooleda2_list = list(subcooleda2.loc[:, 'h'])
+                        scooleda2_list = list(subcooleda2.loc[:, 's'])
+                tcooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(tcooledb2_list),
+                                               list(tcooleda2_list))
+                vcooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(vcooledb2_list),
+                                               list(vcooleda2_list))
+                ucooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(ucooledb2_list),
+                                               list(ucooleda2_list))
+                hcooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(hcooledb2_list),
+                                               list(hcooleda2_list))
+                scooled2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(scooledb2_list),
+                                               list(scooleda2_list))
+                t_b2, t_a2 = lb.above_below(t2, list(tcooled2_list))
+                v_b2, v_a2 = lb.corresponding_ab(t2, tcooled2_list, vcooled2_list)
+                u_b2, u_a2 = lb.corresponding_ab(t2, tcooled2_list, ucooled2_list)
+                h_b2, h_a2 = lb.corresponding_ab(t2, tcooled2_list, hcooled2_list)
+                s_b2, s_a2 = lb.corresponding_ab(t2, tcooled2_list, scooled2_list)
+                v2 = lb.interpolate(t2, t_b2, t_a2, v_b2, v_a2)
+                u2 = lb.interpolate(t2, t_b2, t_a2, u_b2, u_a2)
+                h2 = lb.interpolate(t2, t_b2, t_a2, h_b2, h_a2)
+                s2 = lb.interpolate(t2, t_b2, t_a2, s_b2, s_a2)
+                print("Subcooled Liquid\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(u2) + " kJ/kg\nh2 = " + str(
+                    h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
+                Q = m2 * h2 - m1 * h1
+                print("Q = " + str(Q) + "kJ/s")
+        elif float(P2) < float(p2_expect):
+            print('yay')
+            # Superheated Vapor
+            if P2 in superheated_pressures:
+                for q in range(len(list(superheated_pressures))):
+                    if P2 == superheated_pressures[q]:
+                        superheated2 = pd.read_excel(file_path2, q)
+                        theated2_list = superheated2.loc[:, 'T']
+                        vheated2_list = superheated2.loc[:, 'v']
+                        uheated2_list = superheated2.loc[:, 'u']
+                        hheated2_list = superheated2.loc[:, 'h']
+                        sheated2_list = superheated2.loc[:, 's']
+                if t2 in list(theated2_list):
+                    index = lb.find_index(t2, hheated2_list)
+                    v2 = list(vheated2_list)[index]
+                    u2 = list(uheated2_list)[index]
+                    h2 = list(hheated_list)[index]
+                    s2 = list(sheated2_list)[index]
+                    print("Superheated Vapor\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(
+                        u2) + " kJ/kg\nh2 = " + str(
+                        h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
+                    Q = m2 * h2 - m1 * h1
+                    print("Q = " + str(Q) + "kJ/s")
+                else:
                     t_b2, t_a2 = lb.above_below(t2, list(theated2_list))
                     v_b2, v_a2 = lb.corresponding_ab(t2, theated2_list, vheated2_list)
                     u_b2, u_a2 = lb.corresponding_ab(t2, theated2_list, uheated2_list)
-                    h_b2, h_a2 = lb.corresponding_ab(t2, theated2_list, theated2_list)
+                    h_b2, h_a2 = lb.corresponding_ab(t2, theated2_list, hheated2_list)
                     s_b2, s_a2 = lb.corresponding_ab(t2, theated2_list, sheated2_list)
                     v2 = lb.interpolate(t2, t_b2, t_a2, v_b2, v_a2)
                     u2 = lb.interpolate(t2, t_b2, t_a2, u_b2, u_a2)
                     h2 = lb.interpolate(t2, t_b2, t_a2, h_b2, h_a2)
                     s2 = lb.interpolate(t2, t_b2, t_a2, s_b2, s_a2)
-                    print("Superheated Vapor\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(u2) + " kJ/kg\nh2 = " + str(
+                    print("Superheated Vapor\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(
+                        u2) + " kJ/kg\nh2 = " + str(
                         h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
                     Q = m2 * h2 - m1 * h1
                     print("Q = " + str(Q) + "kJ/s")
+            elif P2 not in superheated_pressures:
+                pressure_below, pressure_above = lb.above_below(pressure, superheated_pressures)
+                for l in range(len(superheated_pressures)):
+                    if pressure_below == superheated_pressures[l]:
+                        superheatedb2 = pd.read_excel(file_path3, l)
+                        theatedb2_list = list(superheatedb2.loc[:, 'T'])
+                        vheatedb2_list = list(superheatedb2.loc[:, 'v'])
+                        uheatedb2_list = list(superheatedb2.loc[:, 'u'])
+                        hheatedb2_list = list(superheatedb2.loc[:, 'h'])
+                        sheatedb2_list = list(superheatedb2.loc[:, 's'])
+                    elif pressure_above == subcooled_pressures[l]:
+                        superheateda2 = pd.read_excel(file_path3, l)
+                        theateda2_list = list(superheateda2.loc[:, 'T'])
+                        vheateda2_list = list(superheateda2.loc[:, 'v'])
+                        uheateda2_list = list(superheateda2.loc[:, 'u'])
+                        hheateda2_list = list(superheateda2.loc[:, 'h'])
+                        sheateda2_list = list(superheateda2.loc[:, 's'])
+                theated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(theatedb2_list),
+                                               list(theateda2_list))
+                vheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(vheatedb2_list),
+                                               list(vheateda2_list))
+                uheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(uheatedb2_list),
+                                               list(uheateda2_list))
+                hheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(hheatedb2_list),
+                                               list(hheateda2_list))
+                sheated2_list = lb.interpolist(pressure, pressure_below, pressure_above, list(sheatedb2_list),
+                                               list(sheateda2_list))
+                t_b2, t_a2 = lb.above_below(t2, list(theated2_list))
+                v_b2, v_a2 = lb.corresponding_ab(t2, theated2_list, vheated2_list)
+                u_b2, u_a2 = lb.corresponding_ab(t2, theated2_list, uheated2_list)
+                h_b2, h_a2 = lb.corresponding_ab(t2, theated2_list, theated2_list)
+                s_b2, s_a2 = lb.corresponding_ab(t2, theated2_list, sheated2_list)
+                v2 = lb.interpolate(t2, t_b2, t_a2, v_b2, v_a2)
+                u2 = lb.interpolate(t2, t_b2, t_a2, u_b2, u_a2)
+                h2 = lb.interpolate(t2, t_b2, t_a2, h_b2, h_a2)
+                s2 = lb.interpolate(t2, t_b2, t_a2, s_b2, s_a2)
+                print("Superheated Vapor\nv2 = " + str(v2) + " m^3/kg\nu2 = " + str(u2) + " kJ/kg\nh2 = " + str(
+                    h2) + " kJ/kg\ns2 = " + str(s2) + " K*kJ/kg")
+                Q = m2 * h2 - m1 * h1
+                print("Q = " + str(Q) + "kJ/s")
 
 
 

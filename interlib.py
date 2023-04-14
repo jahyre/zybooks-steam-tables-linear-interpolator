@@ -1,4 +1,4 @@
-def above_below(value: float, value_list: list):
+def above_below(value, value_list):
     for i in range(len(value_list)):
         if float(value_list[i]) < float(value) < float(value_list[i + 1]):
             below = float(value_list[i])
